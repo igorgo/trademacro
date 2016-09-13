@@ -39,6 +39,8 @@ public class Main {
         List<SearchPageScraper.SearchResultItem> items =  scraper.parse();
         String result = items.stream().limit(noOfItems).map(i -> i.name + "->" + i.buyout).collect(Collectors.joining("\r\n"));
         System.out.println(result);
+        
+        Util.overwriteFile("results.txt", result);
     }
     
 }

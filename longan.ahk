@@ -9,6 +9,7 @@ If (A_AhkVersion <= "1.1.22")
     exit
 }
 
+
 ; Control p
 ^p::
 IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
@@ -43,19 +44,56 @@ FunctionReadItemFromClipboard() {
     IfInString, data1, Rarity:
     {
 	  itemName := data2 . " " . data3
-	  MsgBox % RunWaitOne("java -jar longan.jar Essence 10 """ . itemName . """")
-      ; can't find a solution to hide that cmd window, this is what we used in qic project, but it uses an output file
-      ; RunWait, java -Dfile.encoding=UTF-8 -jar qic.jar %searchTerm%, , Hide ; after this line finishes, results.json should appear
+	  ; MsgBox % RunWaitOne("java -jar longan.jar Essence 10 """ . itemName . """")
+      javaargs := "Essence 10 """ . itemName . """"
+      RunWait, java -Dfile.encoding=UTF-8 -jar longan.jar %javaargs%, , Hide ; after this line finishes, results.txt should appear
+      FileRead, results, results.txt
+      ShowToolTip(results)
+      ;ShowToolTip(javaargs)
 	} 	
   }  
 }
 
+; Show tooltip, with fixed width font
+ShowToolTip(String)
+{
+    Global X, Y, ToolTipTimeout, Opts
+    
+    ; Get position of mouse cursor
+    MouseGetPos, X, Y
 
-RunWaitOne(command) {
-    ; WshShell object: http://msdn.microsoft.com/en-us/library/aew9yb99
-    shell := ComObjCreate("WScript.Shell")
-    ; Execute a single command via cmd.exe
-    exec := shell.Exec(ComSpec " /C " command)
-    ; Read and return the command's output
-    return exec.StdOut.ReadAll()
+    
+        CoordMode, ToolTip, Screen
+        ;~ GetScreenInfo()
+        ;~ TotalScreenWidth := Globals.Get("TotalScreenWidth", 0)
+        ;~ HalfWidth := Round(TotalScreenWidth / 2)
+        
+        ;~ SecondMonitorTopLeftX := HalfWidth
+        ;~ SecondMonitorTopLeftY := 0
+        ScreenOffsetY := Opts.ScreenOffsetY
+        ScreenOffsetX := Opts.ScreenOffsetX
+        
+        XCoord := 0 + ScreenOffsetX
+        YCoord := 0 + ScreenOffsetY
+        
+        ToolTip, %String%, XCoord, YCoord
+        ; Set up count variable and start timer for tooltip timeout
+        ToolTipTimeout := 0
+        SetTimer, ToolTipTimer, 100
 }
+
+; Tick every 100 ms
+; Remove tooltip if mouse is moved or 5 seconds pass
+ToolTipTimer:
+    Global Opts, ToolTipTimeout
+    ToolTipTimeout += 1
+    MouseGetPos, CurrX, CurrY
+    ; Pixels mouse must move to auto-dismiss tooltip
+    MouseMoveThreshold := 200
+    MouseMoved := (CurrX - X) ** 2 + (CurrY - Y) ** 2 > MouseMoveThreshold ** 2
+    If (MouseMoved or (ToolTipTimeout >= 150))
+    {
+        SetTimer, ToolTipTimer, Off
+        ToolTip
+    }
+    return
