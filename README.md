@@ -24,9 +24,13 @@ Compatible with item-info script.
 By default, the script is set to the current softcore temp league. To switch to HC:
 
 Edit the longan.ahk, find the line,
+
 `"payload := """league=Essence&type=&base=&name=" . itemName . "`
+
 Change it to,
+
 `payload := """league=Hardcore Essence&type=&base=&name=" . itemName .`
+
 (thanks to /u/Jargel for providing this [note](https://www.reddit.com/r/pathofexile/comments/52orly/tool_ahk_macro_for_price_check/d7m7knu))
 
 Longan is not affiliated with GGG and is a fan made tool, 100% open source and free(as in freedom).
