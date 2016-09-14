@@ -41,53 +41,17 @@
 			<version>1.8.3</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>18.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.4</version>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.fifesoft</groupId>
-			<artifactId>rsyntaxtextarea</artifactId>
-			<version>2.5.8</version>
-		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>net.coderazzi</groupId> -->
-		<!-- <artifactId>tablefilter-swing</artifactId> -->
-		<!-- <version>5.2.1</version> -->
-		<!-- </dependency> -->
-		<dependency>
-			<groupId>com.github.insubstantial</groupId>
-			<artifactId>substance</artifactId>
-			<version>7.3</version>
-		</dependency>
-		<!-- Why can't logging be simpler? -->
-		<!-- Read the 2 page slf4j manual to undestand this stuff: http://www.slf4j.org/manual.html -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.12</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.6.1</version>
-		</dependency>
-		<dependency>
+		
+<!--		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>19.0</version>
-		</dependency>
+		</dependency>-->
 	</dependencies>
         
         	<build>

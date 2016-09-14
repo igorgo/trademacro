@@ -34,8 +34,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -217,7 +215,7 @@ public class SearchPageScraper {
 	 */
 	public static class SearchResultItem {
 		
-		private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+//		private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 		
 		public String id; // the id in the search result html page
 		public String buyout;

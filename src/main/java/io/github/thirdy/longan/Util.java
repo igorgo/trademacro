@@ -16,15 +16,10 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class Util {
 
-	private static final Logger logger = LoggerFactory.getLogger(Util.class.getName());
+//	private static final Logger logger = LoggerFactory.getLogger(Util.class.getName());
 
 	public static String removeThoseDamnWhiteSpace(String s) {
 		s = StringUtils.deleteWhitespace(s);
@@ -81,10 +76,10 @@ public class Util {
 		FileUtils.writeStringToFile(file, contents, "UTF-8", false);
 	}
 
-	public static String toJsonPretty(Object obj) {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		return gson.toJson(obj);
-	}
+//	public static String toJsonPretty(Object obj) {
+//		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//		return gson.toJson(obj);
+//	}
 
 	public static List<String> loadSearchList(String filename) {
 		List<String> lines;
@@ -101,7 +96,7 @@ public class Util {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			logger.error(e.getMessage(), e);
+//			logger.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}

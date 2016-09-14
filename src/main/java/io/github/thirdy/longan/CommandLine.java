@@ -40,11 +40,7 @@ import java.util.Set;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CommandLine
-{
-	public CommandLine(String[] args) {
-		parse(args);
-	}
-	
+{	
     //
     // all non-flag values
     //

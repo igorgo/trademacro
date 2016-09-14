@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.logging.Logger;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.http.Header;
@@ -16,14 +17,12 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 
 public class BackendClient {
 	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+	private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private HttpClient client = HttpClientBuilder.create().build();
     
