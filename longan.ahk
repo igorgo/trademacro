@@ -44,6 +44,10 @@ FunctionReadItemFromClipboard() {
     IfInString, data1, Rarity:
     {
 	  itemName := data2 . " " . data3
+      IfInString, data3, ---
+      {
+        itemName := data2
+      }
 	  ; MsgBox % RunWaitOne("java -jar longan.jar Essence 10 """ . itemName . """")
       javaargs := "Essence 10 """ . itemName . """"
       RunWait, java -Dfile.encoding=UTF-8 -jar longan.jar %javaargs%, , Hide ; after this line finishes, results.txt should appear
