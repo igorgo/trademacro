@@ -33,6 +33,10 @@ SendMode Input
 StringCaseSense, On ; Match strings with case.
 Menu, tray, Tip, PoE Longan Script
 
+; Windows system tray icon
+IfExist, %A_ScriptDir%\kiwi-fruit.ico
+    Menu, Tray, Icon, %A_ScriptDir%\kiwi-fruit.ico
+
 If (A_AhkVersion <= "1.1.22")
 {
     msgbox, You need AutoHotkey v1.1.22 or later to run this script. `n`nPlease go to http://ahkscript.org/download and download a recent version.
@@ -70,9 +74,6 @@ CoordMode, ToolTip, Screen
 ;
 ; To modify these, you will need to modify the function call headers below
 ; see http://www.autohotkey.com/docs/Hotkeys.htm for hotkey options
-
-; Windows system tray icon
-Menu, Tray, Icon, %A_ScriptDir%\kiwi-fruit.ico
 
 ; Price check w/ auto filters
 ^p::
