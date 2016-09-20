@@ -255,7 +255,8 @@ FunctionDoPostRequestAndParse(payload){
         , AccountName := StrX( Item,  "data-seller=""",                           1,13, """"  ,                      1,1,  T )
         , Buyout      := StrX( Item,  "data-buyout=""",                           T,13, """"  ,                      1,1,  T )
         , IGN         := StrX( Item,  "data-ign=""",                              T,10, """"  ,                      1,1     )
-        , Text .= PadStr(IGN, 30) PadStr(AccountName, 30) PadStr(Buyout,30) "`n"
+        ;, Text .= StrPad(IGN, 30) StrPad(AccountName, 30) StrPad(Buyout,30) "`n"
+        , Text .= StrPad(IGN,20) StrPad(Buyout,20,"left") "`n"
 
     ;MsgBox, %Text%
     ;FileDelete, Result1.txt
@@ -264,17 +265,38 @@ FunctionDoPostRequestAndParse(payload){
     Return, Text
 }
 
-; Taken from https://autohotkey.com/board/topic/45543-fixed-width-strings/
-PadStr(str, size)
+; Taken from Poe-Item-Info
+; Pads a string with a multiple of PadChar to become a wanted total length.
+; Note that Side is the side that is padded not the anchored side.
+; Meaning, if you pad right side, the text will move left. If Side was an 
+; anchor instead, the text would move right if anchored right.
+StrPad(String, Length, Side="right", PadChar=" ")
 {
-
-   loop % size-StrLen(str)
-
-      str .= A_Space
-      ;str .= "."
-
-   return str
-
+    StringLen, Len, String
+    AddLen := Length-Len
+    If (AddLen <= 0)
+    {
+        return String
+    }
+    Pad := StrMult(PadChar, AddLen)
+    If (Side == "right")
+    {
+        Result := String . Pad
+    }
+    Else
+    {
+        Result := Pad . String
+    }
+    return Result
+}
+StrMult(Char, Times)
+{
+    Result =
+    Loop, %Times%
+    {
+        Result := Result . Char
+    }
+    return Result
 }
 
 ; ------------------------------------------------------------------------------------------------------------------ ;
@@ -313,3 +335,7 @@ StrX(H,  BS="",BO=0,BT=1,   ES="",EO=0,ET=1,  ByRef N="" )
 }
 ; v1.0-196c 21-Nov-2009 www.autohotkey.com/forum/topic51354.html
 ; | by Skan | 19-Nov-2009
+
+; From https://redd.it/53ml1x
+;*RButton::Send {shift Down}{RButton down}
+;*RButton Up::Send {shift Up}{RButton up}
