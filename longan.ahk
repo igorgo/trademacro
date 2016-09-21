@@ -61,8 +61,6 @@ global LeagueName := "Essence"
 ;global LeagueName := "Standard"
 ;global LeagueName := "Hardcore"
 
-global NoOfItemsToShow := 15
-
 ; How much the mouse needs to move before the hotkey goes away, not a big deal, change to whatever
 MouseMoveThreshold := 40
 CoordMode, Mouse, Screen
@@ -249,7 +247,7 @@ FunctionDoPostRequestAndParse(payload){
 
     ; Text .= StrX( html,  "<tbody id=""item-container-0",          N,0, "<tr class=""first-line"">",1,28, N )
 
-    ; Show 30 lines
+    NoOfItemsToShow = 15
     While A_Index < NoOfItemsToShow
           Item        := StrX( html,  "<tbody id=""item-container-" . %A_Index%,  N,0,  "<tr class=""first-line"">", 1,23, N )
         , AccountName := StrX( Item,  "data-seller=""",                           1,13, """"  ,                      1,1,  T )
