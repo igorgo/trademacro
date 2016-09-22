@@ -3,6 +3,7 @@
 
 ; POE Longan
 ; Version: 1.2 (2016/09/20)
+; Tested with AutoHotkey112401_Install, Unicode 64-bit (this default)
 ;
 ; Written by /u/ProFalseIdol on reddit, ManicCompression in game
 ;
@@ -33,14 +34,19 @@ SendMode Input
 StringCaseSense, On ; Match strings with case.
 Menu, tray, Tip, PoE Longan Script
 
-; Windows system tray icon
-IfExist, %A_ScriptDir%\kiwi-fruit.ico
-    Menu, Tray, Icon, %A_ScriptDir%\kiwi-fruit.ico
-
 If (A_AhkVersion <= "1.1.22")
 {
     msgbox, You need AutoHotkey v1.1.22 or later to run this script. `n`nPlease go to http://ahkscript.org/download and download a recent version.
     exit
+}
+
+; Windows system tray icon
+IfExist, %A_ScriptDir%\longan.ico
+    Menu, Tray, Icon, %A_ScriptDir%\longan.ico
+else
+{
+    UrlDownloadToFile, https://raw.githubusercontent.com/thirdy/longan/master/longan.ico, %A_ScriptDir%\longan.ico
+    Menu, Tray, Icon, %A_ScriptDir%\longan.ico
 }
 
 ; == Variables and Options and Stuff ===========================
@@ -99,31 +105,19 @@ return
 
 ; == Function Stuff =======================================
 
-FunctionPostItemData(ItemData, InteractiveCheck)
-{
-  ; This is for debug purposes, it should be commented out in normal use
-  ; MsgBox, %URL%
-  ; MsgBox, %ItemData%
-  
-  if (InteractiveCheck = "isInteractive") {
-    temporaryContent = Submitting...
-    FunctionShowToolTipPriceInfo(temporaryContent)	
-  } else {
-    temporaryContent = Submitting...
-    FunctionShowToolTipPriceInfo(temporaryContent)
-    ; Create PostData
-    Global PostData = ItemData
-  }
+FunctionPostItemData(Payload, InteractiveCheck)
+{  
+  temporaryContent = Submitting...
+  FunctionShowToolTipPriceInfo(temporaryContent)
   
   ; Send the PostData and parse the response
-  rawcontent := FunctionDoPostRequestAndParse(PostData)
-  ; TODO
-  ; The return data has a special line that can be pasted into chat/etc., this
-  ; separates that out and copies it to the clipboard.
-  ;StringSplit, responsecontent, rawcontent,^ 
-  ;clipboard = %responsecontent2%
+  html := FunctionDoPostRequest(Payload)
+  result := FunctionParseHtml(html, Payload)
   
-  FunctionShowToolTipPriceInfo(rawcontent)    
+  FileDelete, pricecheck-Result.txt
+  FileAppend, %result%, pricecheck-Result.txt
+  
+  FunctionShowToolTipPriceInfo(result)    
 }
 
 ; This is for the tooltip, so it shows it and starts a timer that watches mouse movement.
@@ -173,7 +167,7 @@ FunctionReadItemFromClipboard() {
 	; something weird got copied to the clipboard.
 	StringSplit, data, ClipBoardData, `n, `r
 		
-	; Strip out extra CR chars so my unix side server doesn't do weird things
+	; Strip out extra CR chars
 	StringReplace RawItemData, ClipBoardData, `r, , A
 
 	; If the first line on the clipboard has Rarity: it is probably some item
@@ -181,15 +175,25 @@ FunctionReadItemFromClipboard() {
 	; we just don't do anything at all.
     IfInString, data1, Rarity:
     {
-    
+        ; TODO, write a better code for all this
+        
         ItemName := data2 . " " . data3
         IfInString, data3, ---
         {
             ItemName := data2
         }
         ;MsgBox % ItemName
+        
+        QualityParam := "q_min="
+        IfInString, data1, Rarity: Gem
+        {
+            IfInString, RawItemData, Quality: 
+            {
+                QualityParam .= StrX(RawItemData, "Quality: +", 1,10, "%",1,1 )
+            }
+        }
     
-        Payload := "league=" . LeagueName . "&type=&base=&name=" . ItemName . "&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
+        Payload := "league=" . LeagueName . "&type=&base=&name=" . ItemName . "&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&" . QualityParam . "&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
         
 	  ; Do POST / etc.	  
 	  FunctionPostItemData(Payload, "notInteractive")
@@ -205,8 +209,10 @@ StrPutVar(Str, ByRef Var, Enc = "")
 	Return, StrPut(Str, &Var, Enc)
 }
 
-FunctionDoPostRequestAndParse(payload){
-    ;MsgBox, % payload
+FunctionDoPostRequest(payload)
+{
+	FileDelete, pricecheck-Payload.txt
+    FileAppend, %payload%, pricecheck-Payload.txt
     
     ; TODO: split this function, HTTP POST and Html parsing should be separate
     ; Reference in making POST requests - http://stackoverflow.com/questions/158633/how-can-i-send-an-http-post-request-to-a-server-from-excel-using-vba
@@ -233,17 +239,32 @@ FunctionDoPostRequestAndParse(payload){
 
     ;MsgBox % HttpObj.StatusText . HttpObj.GetAllResponseHeaders()
     ;MsgBox % HttpObj.ResponseText
+    ; Dear GGG, it would be nice if you can provide an API like http://pathofexile.com/trade/search?name=Veil+of+the+night&links=4
+    ; Pete's indexer is open sourced here - https://github.com/trackpete/exiletools-indexer you can use this to provide this api
     html := HttpObj.ResponseText
     ;FileRead, html, Test1.txt
-    ;FileDelete, Test1.txt
-    ;FileAppend, %html%, Test1.txt
+    FileDelete, pricecheck-Html.htm
+    FileAppend, %html%, pricecheck-Html.htm
+    
+    Return, html
+}
 
+FunctionParseHtml(html, payload)
+{
     ; Target HTML Looks like the ff:
     ;<tbody id="item-container-97" class="item" data-seller="Jobo" data-sellerid="458008" data-buyout="15 chaos" data-ign="Lolipop_Slave" data-league="Essence" data-name="Tabula Rasa Simple Robe" data-tab="This is a buff" data-x="10" data-y="9"> <tr class="first-line">
     ; TODO: grab more data like corruption found inside <tbody>
     
-    ItemName := StrX( payload,  "&name=", 1,6, "&",1,1 )
-    Text := ItemName "`n ---------- `n"
+    ItemName := StrX( payload,  "&name=",  1,6, "&",1,1 )
+    StringReplace, ItemName, ItemName, +, %A_SPACE%, All
+    Quality  := StrX( payload,  "&q_min=", 1,7, "&",1,1 )
+    
+    ; TODO Refactor this
+    IfInString, Quality, q_max
+    {
+        Quality = 
+    }
+    Text := ItemName " " Quality "`n ---------- `n"
 
     ; Text .= StrX( html,  "<tbody id=""item-container-0",          N,0, "<tr class=""first-line"">",1,28, N )
 
@@ -255,10 +276,6 @@ FunctionDoPostRequestAndParse(payload){
         , IGN         := StrX( Item,  "data-ign=""",                              T,10, """"  ,                      1,1     )
         ;, Text .= StrPad(IGN, 30) StrPad(AccountName, 30) StrPad(Buyout,30) "`n"
         , Text .= StrPad(IGN,20) StrPad(Buyout,20,"left") "`n"
-
-    ;MsgBox, %Text%
-    ;FileDelete, Result1.txt
-    ;FileAppend, %Text%, Result1.txt
     
     Return, Text
 }
@@ -337,3 +354,56 @@ StrX(H,  BS="",BO=0,BT=1,   ES="",EO=0,ET=1,  ByRef N="" )
 ; From https://redd.it/53ml1x
 ;*RButton::Send {shift Down}{RButton down}
 ;*RButton Up::Send {shift Up}{RButton up}
+
+F9::
+f9()
+return
+
+^F9::
+f9(true)
+return
+
+f9(reset = false)
+{
+    static f9line = 3
+    filename := "f9-result.txt"
+    
+    Payload := "league=" . LeagueName . "&type=Gem&base=&name=Added+Chaos+Damage&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
+    
+    if (reset) {
+        FunctionDoFreshMacroSearch(Payload, filename)
+        f9line = 3
+    }
+    
+    IfNotExist, %A_ScriptDir%\%filename%
+        FunctionDoFreshMacroSearch(Payload, filename)
+    
+    FileReadLine, line, %A_ScriptDir%\%filename%, %f9line%
+    FileReadLine, itemName, %A_ScriptDir%\%filename%, 1
+    
+    if (!line)
+        result := "No more items found in " filename
+    else
+        result := FunctionToWTB(itemName, line)
+    
+    FunctionShowToolTipPriceInfo(result)
+    clipboard = %result%
+    f9line += 1
+}
+
+FunctionDoFreshMacroSearch(Payload, filename)
+{
+    html := FunctionDoPostRequest(Payload)
+    result := FunctionParseHtml(html, Payload)
+    FileDelete, %filename%
+    FileAppend, %result%, %filename%
+}
+
+FunctionToWTB(itemName, line)
+{
+    RegExMatch(line, "([^\s]+)\s+(.+)", SubPat)
+    ign    := SubPat1
+    buyout := SubPat2
+    msg    := "@" ign ", I would like to buy your " itemName " listed for " buyout " in " LeagueName
+    Return msg
+}
