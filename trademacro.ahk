@@ -1,9 +1,11 @@
-; https://github.com/thirdy/longan
+; https://github.com/thirdy/trademacro
 ; based on Pete's Price Macro https://github.com/trackpete/exiletools-price-macro/blob/master/poe_price_macro.ahk
+; as well as POE Item Info https://github.com/aRTy42/POE-ItemInfo
 
-; POE Longan
-; Version: 1.2 (2016/09/20)
-; Tested with AutoHotkey112401_Install, Unicode 64-bit (this default)
+; Trade Macro
+; Version: 0.1 (2016/09/23)
+; Tested with AutoHotkey112401_Install, Unicode 64-bit
+; Windows 7
 ;
 ; Written by /u/ProFalseIdol on reddit, ManicCompression in game
 ;
@@ -15,15 +17,14 @@
 ; see it. Also, you *must* use the AHK from http://ahkscript.org NOT NOT autohotkey.com!
 ;
 ; WINDOWS 10 NOTE: You may need to run this .ahk file as an Administrator in order for the popups
-; to show properly. 
+; to show properly.
 ;
 ; AUTHOR'S NOTE: I'm not an AHK programmer, I learned everything on by Google only. Certainly this code will look sloppy to experienced AHK programmers, if you have any
 ; advice or would like to re-write it, please feel free and let me know. 
 ;
-;
 ; ===================================================
 ; Change Log
-; 1.2 (2016/09/20): Re-write to use pure AHK, previous version used Java
+; 0.1 (2016/09/23): Re-write to use pure AHK, previous version used Java, project called "longan"
 ;
 
 ; == Startup Options ===========================================
@@ -32,7 +33,7 @@
 #Persistent ; Stay open in background
 SendMode Input 
 StringCaseSense, On ; Match strings with case.
-Menu, tray, Tip, PoE Longan Script
+Menu, tray, Tip, Trade Macro
 
 If (A_AhkVersion <= "1.1.22")
 {
@@ -41,12 +42,12 @@ If (A_AhkVersion <= "1.1.22")
 }
 
 ; Windows system tray icon
-IfExist, %A_ScriptDir%\longan.ico
-    Menu, Tray, Icon, %A_ScriptDir%\longan.ico
+IfExist, %A_ScriptDir%\icon.ico
+    Menu, Tray, Icon, %A_ScriptDir%\icon.ico
 else
 {
-    UrlDownloadToFile, https://raw.githubusercontent.com/thirdy/longan/master/longan.ico, %A_ScriptDir%\longan.ico
-    Menu, Tray, Icon, %A_ScriptDir%\longan.ico
+    UrlDownloadToFile, https://raw.githubusercontent.com/thirdy/trademacro/master/icon.ico, %A_ScriptDir%\icon.ico
+    Menu, Tray, Icon, %A_ScriptDir%\icon.ico
 }
 
 ; == Variables and Options and Stuff ===========================
@@ -94,18 +95,18 @@ IfWinActive, Path of Exile ahk_class Direct3DWindowClass
   Global X
   Global Y
   MouseGetPos, X, Y	
-  InputBox,ItemName,Experimental Search,Item Name,,250,100,X-160,Y - 250,,30,
+  InputBox,ItemName,Price Check,Item Name,,250,100,X-160,Y - 250,,30,
   if ItemName {
-	Global PostData = "league=" . LeagueName . "&type=&base=&name=" . ItemName . "&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
+	PostData := "league=" . LeagueName . "&type=&base=&name=" . ItemName . "&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
     
-    FunctionPostItemData("null", "isInteractive")
+    FunctionPostItemData(PostData)
   }
 }
 return
 
 ; == Function Stuff =======================================
 
-FunctionPostItemData(Payload, InteractiveCheck)
+FunctionPostItemData(Payload)
 {  
   temporaryContent = Submitting...
   FunctionShowToolTipPriceInfo(temporaryContent)
@@ -114,9 +115,8 @@ FunctionPostItemData(Payload, InteractiveCheck)
   html := FunctionDoPostRequest(Payload)
   result := FunctionParseHtml(html, Payload)
   
-  FileDelete, pricecheck-Result.txt
-  FileAppend, %result%, pricecheck-Result.txt
-  
+  ;FileDelete, result.txt
+  ;FileAppend, %result%, result.txt
   FunctionShowToolTipPriceInfo(result)    
 }
 
@@ -194,10 +194,8 @@ FunctionReadItemFromClipboard() {
         }
     
         Payload := "league=" . LeagueName . "&type=&base=&name=" . ItemName . "&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&" . QualityParam . "&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
-        
-	  ; Do POST / etc.	  
-	  FunctionPostItemData(Payload, "notInteractive")
-	
+         
+	  FunctionPostItemData(Payload)
 	} 	
   }  
 }
@@ -211,8 +209,8 @@ StrPutVar(Str, ByRef Var, Enc = "")
 
 FunctionDoPostRequest(payload)
 {
-	FileDelete, pricecheck-Payload.txt
-    FileAppend, %payload%, pricecheck-Payload.txt
+	;FileDelete, payload.txt
+    ;FileAppend, %payload%, payload.txt
     
     ; TODO: split this function, HTTP POST and Html parsing should be separate
     ; Reference in making POST requests - http://stackoverflow.com/questions/158633/how-can-i-send-an-http-post-request-to-a-server-from-excel-using-vba
@@ -243,8 +241,8 @@ FunctionDoPostRequest(payload)
     ; Pete's indexer is open sourced here - https://github.com/trackpete/exiletools-indexer you can use this to provide this api
     html := HttpObj.ResponseText
     ;FileRead, html, Test1.txt
-    FileDelete, pricecheck-Html.htm
-    FileAppend, %html%, pricecheck-Html.htm
+    ;FileDelete, html.htm
+    ;FileAppend, %html%, html.htm
     
     Return, html
 }
@@ -356,43 +354,137 @@ StrX(H,  BS="",BO=0,BT=1,   ES="",EO=0,ET=1,  ByRef N="" )
 ;*RButton Up::Send {shift Up}{RButton up}
 
 F9::
-f9()
+IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
+{
+    f9()
+}
 return
 
 ^F9::
-f9(true)
+IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
+{
+    f9(true)
+}
 return
 
-f9(reset = false)
-{
-    static f9line = 3
-    filename := "f9-result.txt"
-    
+f9(reset = false) {
+    static LineNumber = 3
+    if (reset) 
+        LineNumber = 3
+        
     Payload := "league=" . LeagueName . "&type=Gem&base=&name=Added+Chaos+Damage&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
     
+    filename := "f9-result.txt"
+    FunctionDoMacroSearch(Payload, LineNumber, filename, reset)
+    LineNumber += 1
+}
+
+F10::
+IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
+{
+    f10()
+}
+return
+
+^F10::
+IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
+{
+    f10(true)
+}
+return
+
+f10(reset = false) {
+    static LineNumber = 3
+    if (reset) 
+        LineNumber = 3
+        
+    Payload := "league=" . LeagueName . "&type=Jewel&base=&name=&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=%23%25+increased+maximum+Life&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&mod_name=%28pseudo%29+%28total%29+%2B%23%25+to+Cold+Resistance&mod_min=&mod_max=&mod_name=%28pseudo%29+%28total%29+%2B%23%25+to+Lightning+Resistance&mod_min=&mod_max=&mod_name=%28pseudo%29+%28total%29+%2B%23%25+to+Fire+Resistance&mod_min=&mod_max=&group_type=Count&group_min=2&group_max=&group_count=3&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
+    
+    filename := "f10-result.txt"
+    FunctionDoMacroSearch(Payload, LineNumber, filename, reset)
+    LineNumber += 1
+}
+
+F11::
+IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
+{
+    f11()
+}
+return
+
+^F11::
+IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
+{
+    f11(true)
+}
+return
+
+f11(reset = false) {
+    static LineNumber = 3
+    if (reset) 
+        LineNumber = 3
+        
+    Payload := "league=" . LeagueName . "&type=&base=&name=Tabula+Rasa+Simple+Robe&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=0&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
+    
+    filename := "f11-result.txt"
+    FunctionDoMacroSearch(Payload, LineNumber, filename, reset)
+    LineNumber += 1
+}
+
+F12::
+IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
+{
+    f12()
+}
+return
+
+^F12::
+IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
+{
+    f12(true)
+}
+return
+
+f12(reset = false) {
+    static ItemName = "Lifesprig Driftwood Wand"
+    static LineNumber = 3
     if (reset) {
+        LineNumber = 3
+        InputBox,ItemName,Search By Item Name,Item Name,,250,100,X-160,Y - 250,,30,
+    }   
+        
+    Payload := "league=" . LeagueName . "&type=&base=&name=" . ItemName . "&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
+    
+    filename := "f12-result.txt"
+    FunctionDoMacroSearch(Payload, LineNumber, filename, reset)
+    LineNumber += 1
+}
+
+FunctionDoMacroSearch(Payload, LineNumber, filename, reset)
+{   
+    if (reset)
         FunctionDoFreshMacroSearch(Payload, filename)
-        f9line = 3
-    }
     
     IfNotExist, %A_ScriptDir%\%filename%
         FunctionDoFreshMacroSearch(Payload, filename)
     
-    FileReadLine, line, %A_ScriptDir%\%filename%, %f9line%
+    FileReadLine, line, %A_ScriptDir%\%filename%, %LineNumber%
     FileReadLine, itemName, %A_ScriptDir%\%filename%, 1
     
     if (!line)
         result := "No more items found in " filename
-    else
+    else {
         result := FunctionToWTB(itemName, line)
+        clipboard = %result%
+    }
     
     FunctionShowToolTipPriceInfo(result)
-    clipboard = %result%
-    f9line += 1
+    
 }
 
 FunctionDoFreshMacroSearch(Payload, filename)
 {
+    FunctionShowToolTipPriceInfo("Running search...")
     html := FunctionDoPostRequest(Payload)
     result := FunctionParseHtml(html, Payload)
     FileDelete, %filename%
