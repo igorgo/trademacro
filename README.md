@@ -1,4 +1,4 @@
-# Path of Exile Trade Macro
+# PoE Trade Macro
 AutoHotKey script that provides various useful macro for trading in Path of Exile
 
 1. **ctrl+p** for price checking the item in cursor by _item name_. Works great for uniques and other items like _Offering to the Goddess_.
