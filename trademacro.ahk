@@ -214,8 +214,8 @@ FunctionDoPostRequest(payload)
     
     ; TODO: split this function, HTTP POST and Html parsing should be separate
     ; Reference in making POST requests - http://stackoverflow.com/questions/158633/how-can-i-send-an-http-post-request-to-a-server-from-excel-using-vba
-    ; HttpObj := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-    HttpObj := ComObjCreate("MSXML2.ServerXMLHTTP") 
+    HttpObj := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+    ;HttpObj := ComObjCreate("MSXML2.ServerXMLHTTP") 
     ; We use this instead of WinHTTP to support gzip and deflate - http://microsoft.public.winhttp.narkive.com/NDkh5vEw/get-request-for-xml-gzip-file-winhttp-wont-uncompress-automagically
     HttpObj.Open("POST","http://poe.trade/search")
     HttpObj.SetRequestHeader("Host","poe.trade")
@@ -228,8 +228,8 @@ FunctionDoPostRequest(payload)
     HttpObj.SetRequestHeader("Content-type","application/x-www-form-urlencoded")
     HttpObj.SetRequestHeader("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
     HttpObj.SetRequestHeader("Referer","http://poe.trade/")
-    ;HttpObj.SetRequestHeader("Accept-Encoding","gzip;q=0,deflate;q=0") ; disables compression
-    HttpObj.SetRequestHeader("Accept-Encoding","gzip, deflate")
+    HttpObj.SetRequestHeader("Accept-Encoding","gzip;q=0,deflate;q=0") ; disables compression
+    ;HttpObj.SetRequestHeader("Accept-Encoding","gzip, deflate")
     HttpObj.SetRequestHeader("Accept-Language","en-US,en;q=0.8")
 
     HttpObj.Send(payload)
