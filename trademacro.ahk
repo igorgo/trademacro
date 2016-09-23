@@ -496,6 +496,6 @@ FunctionToWTB(itemName, line)
     RegExMatch(line, "([^\s]+)\s+(.+)", SubPat)
     ign    := SubPat1
     buyout := SubPat2
-    msg    := "@" ign ", I would like to buy your " itemName " listed for " buyout " in " LeagueName
+    msg    := "@" ign " I would like to buy your " itemName " listed for " buyout " in " LeagueName
     Return msg
 }
