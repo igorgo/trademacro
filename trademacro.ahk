@@ -182,7 +182,8 @@ FunctionReadItemFromClipboard() {
         {
             ItemName := data2
         }
-        ;MsgBox % ItemName
+        ; If item was linked from chat, there's this extra string we need to eliminate
+        StringReplace ItemName, ItemName, <<set:MS>><<set:M>><<set:S>>, , A
         
         QualityParam := "q_min="
         IfInString, data1, Rarity: Gem
