@@ -11,7 +11,8 @@ AutoHotKey script that provides various useful macro for trading in Path of Exil
 
 1. You'll need to install the following:
  - ahk - http://ahkscript.org
-2. Download and run [tradescript.ahk](https://raw.githubusercontent.com/thirdy/trademacro/master/trademacro.ahk) (Right-click and Save as..). I recommend saving the script into it's own folder as it will generate text files on runtime.
+2. Download and extract [master.zip](https://github.com/thirdy/trademacro/archive/master.zip) (Right-click and Save as..).
+3. Run trademacro.ahk
 4. Run Path of Exile and switch to Fullscreen Window Mode (or Window Mode) - this is required for ahk to work.
 
 **Harcore league?**
