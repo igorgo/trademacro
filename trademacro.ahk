@@ -33,7 +33,10 @@
 #Persistent ; Stay open in background
 SendMode Input 
 StringCaseSense, On ; Match strings with case.
-Menu, tray, Tip, Trade Macro
+Menu, tray, Tip, Path of Exile Trade Macro
+
+; https://github.com/cocobelgica/AutoHotkey-JSON
+#Include, lib/JSON.ahk
 
 If (A_AhkVersion <= "1.1.22")
 {
@@ -54,34 +57,39 @@ else
 
 ; *******************************************************************
 ; *******************************************************************
-;                      SET LEAGUENAME BELOW!!
+;                      SET LEAGUENAME IN CONFIG FILE!!
 ; *******************************************************************
 ; *******************************************************************
-; Option for LeagueName - this must be specified.
-; Remove the ; from in front of the line that has the leaguename you
-; want, or just change the uncommented line to say what you want.
-; Make sure all other LeagueName lines have a ; in front of them (commented)
-; or are removed
+; League Name must be specified in config file, otherwise the search defaults to Standard League
 
-global LeagueName := "Essence"
-;global LeagueName := "Hardcore Essence"
-;global LeagueName := "Standard"
-;global LeagueName := "Hardcore"
+global LeagueJSONFile := "leagues.json"
+global Leagues := FunctionGETLeagues()
+global iniFilePath := "config.ini"
+global IniLeagueName := FunctionReadValueFromIni("SearchLeague", "tmpstandard", "Search")
+global LeagueName := Leagues[IniLeagueName]
+global MouseMoveThreshold := 
+global Debug :=
 
-; How much the mouse needs to move before the hotkey goes away, not a big deal, change to whatever
-MouseMoveThreshold := 40
-CoordMode, Mouse, Screen
-CoordMode, ToolTip, Screen
+Gosub, SubroutineReadIniValues
 
 ; There are multiple hotkeys to run this script now, defaults set as follows:
 ; ^p (CTRL-p) - Sends the item information to my server, where a price check is performed. Levels and quality will be automatically processed.
 ; ^i (CTRL-i) - Pulls up an interactive search box that goes away after 30s or when you hit enter/ok
 ;
-; To modify these, you will need to modify the function call headers below
+; To modify these, you will need to modify the config file
 ; see http://www.autohotkey.com/docs/Hotkeys.htm for hotkey options
 
+ReadFromClipboardKey := FunctionReadValueFromIni("PriceCheckHotKey", "^q", "Hotkeys")
+CustomInputSearchKey := FunctionReadValueFromIni("CustomInputSearchHotKey", "^i", "Hotkeys")
+Hotkey, %ReadFromClipboardKey%, ReadFromClipboard
+Hotkey, %CustomInputSearchKey%, CustomInputSearch
+
+; How much the mouse needs to move before the hotkey goes away, change in config file
+CoordMode, Mouse, Screen
+CoordMode, ToolTip, Screen
+
 ; Price check w/ auto filters
-^p::
+ReadFromClipboard:
 IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
 {
   FunctionReadItemFromClipboard()
@@ -89,7 +97,7 @@ IfWinActive, Path of Exile ahk_class Direct3DWindowClass
 return
 
 ; Custom Input String Search
-^i::
+CustomInputSearch:
 IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
 {   
   Global X
@@ -499,4 +507,102 @@ FunctionToWTB(itemName, line)
     buyout := SubPat2
     msg    := "@" ign " I would like to buy your " itemName " listed for " buyout " in " LeagueName
     Return msg
+}
+
+; ------------------ GET LEAGUES ------------------ 
+FunctionGETLeagues(){
+    JSON := FunctionGetLeaguesJSON()    
+    FileRead, JSONFile, leagues.json  
+    ; too dumb to parse the file to JSON Object, skipping this tstep
+    ;parsedJSON 	:= JSON.Load(JSONFile)	
+        
+    ; Loop over league info and get league names    
+    leagues := []
+	Loop, Parse, JSONFile, `n, `r
+	{					
+        If RegExMatch(A_LoopField,"iOm)id *: *""(.*)""",leagueNames) {
+            If (RegExMatch(leagueNames[1], "i)^Standard$")) {
+                leagues["standard"] := leagueNames[1]
+            }
+            Else If (RegExMatch(leagueNames[1], "i)^Hardcore$")) {
+                leagues["hardcore"] := leagueNames[1]
+            }
+            Else If InStr(leagueNames[1], "Hardcore", false) {
+                leagues["tmphardcore"] := leagueNames[1]
+            }
+            Else {
+                leagues["tmpstandard"] := leagueNames[1]
+            }
+        }        
+	}
+    
+	Return leagues
+}
+
+FunctionGetLeaguesJSON(){
+    HttpObj := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+    HttpObj.Open("GET","http://api.pathofexile.com/leagues?type=main&compact=1")
+    HttpObj.SetRequestHeader("Content-type","application/json")
+    HttpObj.Send("")
+    HttpObj.WaitForResponse()
+    
+    ; Trying to format the string as JSON
+    json := "{""results"":" . HttpObj.ResponseText . "}"
+    json := RegExReplace(HttpObj.ResponseText, ",", ",`r`n`" A_Tab) 
+    json := RegExReplace(json, "{", "{`r`n`" A_Tab)
+    json := RegExReplace(json, "}", "`r`n`}")    
+    json := RegExReplace(json, "},", A_Tab "},")
+    json := RegExReplace(json, "\[", "[`r`n`" A_Tab)
+    json := RegExReplace(json, "\]", "`r`n`]")
+    json := RegExReplace(json, "m)}$", A_Tab "}")
+    json := RegExReplace(json, """(.*)"":", A_Tab "$1 : ")
+    
+    ;MsgBox % json
+    FileDelete, %LeagueJSONFile%
+    FileAppend, %json%, %LeagueJSONFile%
+    
+    Return, json
+}
+
+; ------------------ READ ALL OTHER INI VALUES ------------------ 
+SubroutineReadIniValues:
+	MouseMoveThreshold := FunctionReadValueFromIni("MouseMoveThreshold", 40)
+    Debug := FunctionReadValueFromIni("Debug", 0, "Debug")
+return
+
+; ------------------ READ INI AND CHECK IF VARIABLES ARE SET ------------------ 
+FunctionReadValueFromIni(IniKey, DefaultValue = "", Section = "Misc"){
+	IniRead, OutputVar, %iniFilePath%, %Section%, %IniKey%
+    
+	If (!OutputVar | RegExMatch(OutputVar, "^ERROR$")) { 
+		OutputVar := DefaultValue
+        ; Somehow reading some ini-values is not working with IniRead
+        ; Fallback for these cases via FileReadLine        
+        Loop {
+            FileReadLine, line, %iniFilePath%, %A_Index%
+            If ErrorLevel
+            break
+            If InStr(line, IniKey, false) {
+                RegExMatch(line, "= *(.*)", value)
+                If (StrLen(value[1]) = 0) {
+                    OutputVar := DefaultValue
+                }
+                Else {
+                    OutputVar := value[1]
+                }                
+            }
+        }
+    }
+	Return OutputVar
+}
+
+; ------------------ WRITE TO INI ------------------
+FunctionWriteValueToIni(IniKey,NewValue,IniSection){
+	IniWrite, %NewValue%, %iniFilePath%, %IniSection%, %IniKey%
+	If ErrorLevel
+		s := "Writing to config failed."
+	Else
+		s := "Config updated."
+	
+	Gosub, SubroutineReadIniValues
 }
