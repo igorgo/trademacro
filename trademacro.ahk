@@ -69,6 +69,13 @@ global IniLeagueName := FunctionReadValueFromIni("SearchLeague", "tmpstandard", 
 global LeagueName := Leagues[IniLeagueName]
 global MouseMoveThreshold := 
 global Debug :=
+global ReadFromClipboardKey := 
+global CustomInputSearchKey := 
+global PredefSearch01Key :=
+global PredefSearch02Key :=
+global PredefSearch03Key :=
+global PredefSearch04Key :=
+global RepeatPredefSearchModifier :=
 
 Gosub, SubroutineReadIniValues
 
@@ -78,11 +85,16 @@ Gosub, SubroutineReadIniValues
 ;
 ; To modify these, you will need to modify the config file
 ; see http://www.autohotkey.com/docs/Hotkeys.htm for hotkey options
-
-ReadFromClipboardKey := FunctionReadValueFromIni("PriceCheckHotKey", "^q", "Hotkeys")
-CustomInputSearchKey := FunctionReadValueFromIni("CustomInputSearchHotKey", "^i", "Hotkeys")
 Hotkey, %ReadFromClipboardKey%, ReadFromClipboard
 Hotkey, %CustomInputSearchKey%, CustomInputSearch
+Hotkey, %PredefSearch01Key%, PredefSearch01
+Hotkey, %RepeatPredefSearchModifier%%PredefSearch01Key%, RepeatPredefSearch01
+Hotkey, %PredefSearch02Key%, PredefSearch02
+Hotkey, %RepeatPredefSearchModifier%%PredefSearch02Key%, RepeatPredefSearch02
+Hotkey, %PredefSearch03Key%, PredefSearch03
+Hotkey, %RepeatPredefSearchModifier%%PredefSearch03Key%, RepeatPredefSearch03
+Hotkey, %PredefSearch04Key%, PredefSearch04
+Hotkey, %RepeatPredefSearchModifier%%PredefSearch04Key%, RepeatPredefSearch04
 
 ; How much the mouse needs to move before the hotkey goes away, change in config file
 CoordMode, Mouse, Screen
@@ -282,7 +294,8 @@ FunctionParseHtml(html, payload)
         , Buyout      := StrX( Item,  "data-buyout=""",                           T,13, """"  ,                      1,1,  T )
         , IGN         := StrX( Item,  "data-ign=""",                              T,10, """"  ,                      1,1     )
         ;, Text .= StrPad(IGN, 30) StrPad(AccountName, 30) StrPad(Buyout,30) "`n"
-        , Text .= StrPad(IGN,20) StrPad(Buyout,20,"left") "`n"
+        ;, Text .= StrPad(IGN,20) StrPad(Buyout,20,"left") "`n"
+        , Text .= StrPad(Buyout,20) StrPad(IGN,20) "`n"
     
     Return, Text
 }
@@ -362,99 +375,99 @@ StrX(H,  BS="",BO=0,BT=1,   ES="",EO=0,ET=1,  ByRef N="" )
 ;*RButton::Send {shift Down}{RButton down}
 ;*RButton Up::Send {shift Up}{RButton up}
 
-F9::
+PredefSearch01:
 IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
 {
-    f9()
+    FunctionPredefSearch01()
 }
 return
 
-^F9::
+RepeatPredefSearch01:
 IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
 {
-    f9(true)
+    FunctionPredefSearch01(true)
 }
 return
 
-f9(reset = false) {
+FunctionPredefSearch01(reset = false) {
     static LineNumber = 3
     if (reset) 
         LineNumber = 3
         
     Payload := "league=" . LeagueName . "&type=Gem&base=&name=Added+Chaos+Damage&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
     
-    filename := "f9-result.txt"
+    filename := "PredefSearch01-result.txt"
     FunctionDoMacroSearch(Payload, LineNumber, filename, reset)
     LineNumber += 1
 }
 
-F10::
+PredefSearch02:
 IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
 {
-    f10()
+    FunctionPredefSearch02()
 }
 return
 
-^F10::
+RepeatPredefSearch02:
 IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
 {
-    f10(true)
+    FunctionPredefSearch02(true)
 }
 return
 
-f10(reset = false) {
+FunctionPredefSearch02(reset = false) {
     static LineNumber = 3
     if (reset) 
         LineNumber = 3
         
     Payload := "league=" . LeagueName . "&type=Jewel&base=&name=&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=%23%25+increased+maximum+Life&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&mod_name=%28pseudo%29+%28total%29+%2B%23%25+to+Cold+Resistance&mod_min=&mod_max=&mod_name=%28pseudo%29+%28total%29+%2B%23%25+to+Lightning+Resistance&mod_min=&mod_max=&mod_name=%28pseudo%29+%28total%29+%2B%23%25+to+Fire+Resistance&mod_min=&mod_max=&group_type=Count&group_min=2&group_max=&group_count=3&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
     
-    filename := "f10-result.txt"
+    filename := "PredefSearch02-result.txt"
     FunctionDoMacroSearch(Payload, LineNumber, filename, reset)
     LineNumber += 1
 }
 
-F11::
+PredefSearch03:
 IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
 {
-    f11()
+    FunctionPredefSearch03()
 }
 return
 
-^F11::
+RepeatPredefSearch03:
 IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
 {
-    f11(true)
+    FunctionPredefSearch03(true)
 }
 return
 
-f11(reset = false) {
+FunctionPredefSearch03(reset = false) {
     static LineNumber = 3
     if (reset) 
         LineNumber = 3
         
     Payload := "league=" . LeagueName . "&type=&base=&name=Tabula+Rasa+Simple+Robe&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=0&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
     
-    filename := "f11-result.txt"
+    filename := "PredefSearch03-result.txt"
     FunctionDoMacroSearch(Payload, LineNumber, filename, reset)
     LineNumber += 1
 }
 
-F12::
+PredefSearch04:
 IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
 {
-    f12()
+    FunctionPredefSearch04()
 }
 return
 
-^F12::
+RepeatPredefSearch04:
 IfWinActive, Path of Exile ahk_class Direct3DWindowClass 
 {
-    f12(true)
+    FunctionPredefSearch04(true)
 }
 return
 
-f12(reset = false) {
+FunctionPredefSearch04(reset = false) {
     static ItemName = "Lifesprig Driftwood Wand"
     static LineNumber = 3
     if (reset) {
@@ -464,7 +477,7 @@ f12(reset = false) {
         
     Payload := "league=" . LeagueName . "&type=&base=&name=" . ItemName . "&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&q_min=&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
     
-    filename := "f12-result.txt"
+    filename := "PredefSearch04-result.txt"
     FunctionDoMacroSearch(Payload, LineNumber, filename, reset)
     LineNumber += 1
 }
@@ -568,6 +581,13 @@ FunctionGetLeaguesJSON(){
 SubroutineReadIniValues:
 	MouseMoveThreshold := FunctionReadValueFromIni("MouseMoveThreshold", 40)
     Debug := FunctionReadValueFromIni("Debug", 0, "Debug")
+    ReadFromClipboardKey := FunctionReadValueFromIni("PriceCheckHotKey", "^q", "Hotkeys")
+    CustomInputSearchKey := FunctionReadValueFromIni("CustomInputSearchHotKey", "^i", "Hotkeys")
+    RepeatPredefSearchModifier := FunctionReadValueFromIni("RepeatPredefinedSearchModifier", "^", "Hotkeys")
+    PredefSearch01Key := FunctionReadValueFromIni("PredefinedSearch01HotKey", "F9", "Hotkeys")
+    PredefSearch02Key := FunctionReadValueFromIni("PredefinedSearch01HotKey", "F10", "Hotkeys")
+    PredefSearch03Key := FunctionReadValueFromIni("PredefinedSearch01HotKey", "F11", "Hotkeys")
+    PredefSearch04Key := FunctionReadValueFromIni("PredefinedSearch01HotKey", "F12", "Hotkeys")
 return
 
 ; ------------------ READ INI AND CHECK IF VARIABLES ARE SET ------------------ 
