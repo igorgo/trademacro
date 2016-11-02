@@ -278,7 +278,7 @@ FunctionParseHtml(html, payload)
     NoOfItemsToShow = 15
     While A_Index < NoOfItemsToShow
           Item        := StrX( html,  "<tbody id=""item-container-" . %A_Index%,  N,0,  "<tr class=""first-line"">", 1,23, N )
-        , AccountName := StrX( Item,  "data-seller=""",                           1,13, """"  ,                      1,1,  T )
+        , AccountName := StrX( Item,  "data-sellerid=""",                           1,15, """"  ,                      1,1,  T )
         , Buyout      := StrX( Item,  "data-buyout=""",                           T,13, """"  ,                      1,1,  T )
         , IGN         := StrX( Item,  "data-ign=""",                              T,10, """"  ,                      1,1     )
         ;, Text .= StrPad(IGN, 30) StrPad(AccountName, 30) StrPad(Buyout,30) "`n"
@@ -530,7 +530,7 @@ FunctionGETLeagues(){
             Else If InStr(leagueNames[1], "Hardcore", false) {
                 leagues["tmphardcore"] := leagueNames[1]
             }
-            Else {
+            Else If not InStr(leagueNames[1], "(ERW", false) {
                 leagues["tmpstandard"] := leagueNames[1]
             }
         }        
