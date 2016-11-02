@@ -69,7 +69,7 @@ global IniLeagueName := FunctionReadValueFromIni("SearchLeague", "tmpstandard", 
 global LeagueName := Leagues[IniLeagueName]
 global MouseMoveThreshold := 
 global Debug :=
-
+global ShowPricesByOffers := FunctionReadValueFromIni("ShowPricesByOffers", 0, "Search")
 Gosub, SubroutineReadIniValues
 
 ; There are multiple hotkeys to run this script now, defaults set as follows:
@@ -203,7 +203,7 @@ FunctionReadItemFromClipboard() {
         }
     
         Payload := "league=" . LeagueName . "&type=&base=&name=" . ItemName . "&dmg_min=&dmg_max=&aps_min=&aps_max=&crit_min=&crit_max=&dps_min=&dps_max=&edps_min=&edps_max=&pdps_min=&pdps_max=&armour_min=&armour_max=&evasion_min=&evasion_max=&shield_min=&shield_max=&block_min=&block_max=&sockets_min=&sockets_max=&link_min=&link_max=&sockets_r=&sockets_g=&sockets_b=&sockets_w=&linked_r=&linked_g=&linked_b=&linked_w=&rlevel_min=&rlevel_max=&rstr_min=&rstr_max=&rdex_min=&rdex_max=&rint_min=&rint_max=&mod_name=&mod_min=&mod_max=&group_type=And&group_min=&group_max=&group_count=1&" . QualityParam . "&q_max=&level_min=&level_max=&ilvl_min=&ilvl_max=&rarity=&seller=&thread=&identified=&corrupted=&online=x&buyout=x&altart=&capquality=x&buyout_min=&buyout_max=&buyout_currency=&crafted=&enchanted="
-         
+
 	  FunctionPostItemData(Payload)
 	} 	
   }  
@@ -271,19 +271,56 @@ FunctionParseHtml(html, payload)
     {
         Quality = 
     }
-    Text := ItemName " " Quality "`n ---------- `n"
+    Text := ItemName " " Quality "`n -------------------------------------- `n"
 
     ; Text .= StrX( html,  "<tbody id=""item-container-0",          N,0, "<tr class=""first-line"">",1,28, N )
 
-    NoOfItemsToShow = 15
+    if (ShowPricesByOffers = 0)
+	{
+	    NoOfItemsToShow = 15
+	}
+	Else
+	{
+		NoOfItemsToShow = 99
+		curPrice := ""
+	    curCnt := 0
+		Text .= "         Price        #Offers           "
+		Text .= "`n -------------------------------------- `n"
+	}
+	
     While A_Index < NoOfItemsToShow
+	{
           Item        := StrX( html,  "<tbody id=""item-container-" . %A_Index%,  N,0,  "<tr class=""first-line"">", 1,23, N )
         , AccountName := StrX( Item,  "data-sellerid=""",                           1,15, """"  ,                      1,1,  T )
         , Buyout      := StrX( Item,  "data-buyout=""",                           T,13, """"  ,                      1,1,  T )
         , IGN         := StrX( Item,  "data-ign=""",                              T,10, """"  ,                      1,1     )
         ;, Text .= StrPad(IGN, 30) StrPad(AccountName, 30) StrPad(Buyout,30) "`n"
-        , Text .= StrPad(IGN,20) StrPad(Buyout,20,"left") "`n"
-    
+		If (ShowPricesByOffers = 0)
+		{
+		    Text .= StrPad(IGN,20) StrPad(Buyout,20,"left") "`n"
+		}
+		Else
+		{
+			if (Buyout <> curPrice) 
+			{   
+			   if (curCnt > 0)
+			   {
+				  Text .= StrPad(curCnt,20,"left") "`n"
+				  curCnt := 0
+			   }
+			   Text .= StrPad(Buyout,20)
+			   ++curCnt
+			   curPrice := Buyout
+			}
+			Else
+			{
+			  ++curCnt
+			}
+			
+		}
+    }
+	if ((ShowPricesByOffers = 0)) Text .= StrPad(curCnt,20,"left") "`n"
+	
     Return, Text
 }
 
